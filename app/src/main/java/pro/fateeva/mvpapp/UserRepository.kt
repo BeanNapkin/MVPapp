@@ -16,10 +16,10 @@ class UserRepository {
         val user = usersList.firstOrNull { user -> user.login == login }
             ?: return Response.UNREGISTERED
 
-        return if (user?.password == password) {
-            return Response.CORRECT_PASSWORD
+        return if (user.password == password) {
+            Response.CORRECT_PASSWORD
         } else {
-            return Response.UNCORRECT_PASSWORD
+            Response.UNCORRECT_PASSWORD
         }
     }
 

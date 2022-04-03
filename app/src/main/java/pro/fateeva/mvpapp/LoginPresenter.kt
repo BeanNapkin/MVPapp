@@ -5,10 +5,10 @@ import java.lang.Thread.sleep
 import android.os.Handler
 
 class LoginPresenter : LoginContract.Presenter {
+
     private var view: LoginContract.View? = null
     private val mainThreadHandler = Handler(Looper.getMainLooper())
     private var responseText: String = ""
-
     private val userRepository: UserRepository = UserRepository()
 
     override fun onAttach(view: LoginContract.View) {
@@ -34,12 +34,12 @@ class LoginPresenter : LoginContract.Presenter {
     }
 
     override fun onForgetPassword(login: String) {
-        if (login == null){
+        if (login.isBlank()) {
             view?.setResponse(Response.EMPTY_LOGIN.response)
             responseText = Response.EMPTY_LOGIN.response
         } else {
             val password = userRepository.remindPassword(login)
-            if (password == null){
+            if (password.isNullOrBlank()) {
                 view?.setResponse(Response.UNREGISTERED.response)
                 responseText = Response.UNREGISTERED.response
             } else {
@@ -50,23 +50,25 @@ class LoginPresenter : LoginContract.Presenter {
     }
 
     override fun onSignin(login: String, password: String) {
-        view?.showProgress()
-        Thread {
-            sleep(3_000)
-            mainThreadHandler.post {
-                view?.hideProgress()
-                if (login == "" || password == "") {
-                    view?.setResponse(Response.EMPTY_CELLS.response)
-                    responseText = Response.EMPTY_CELLS.response
-                } else if (userRepository.checkDuplicationOfUsers(login)) {
-                    view?.setResponse(Response.USERS_DUPLICATION.response)
-                    responseText = Response.USERS_DUPLICATION.response
-                } else {
-                    userRepository.addUser(User(login, password))
-                    view?.setResponse(Response.REGISTER_SUCCESS.response)
-                    responseText = Response.REGISTER_SUCCESS.response
+        if (login.isBlank() || password.isBlank()) {
+            view?.setResponse(Response.EMPTY_CELLS.response)
+            responseText = Response.EMPTY_CELLS.response
+        } else {
+            view?.showProgress()
+            Thread {
+                sleep(3_000)
+                mainThreadHandler.post {
+                    view?.hideProgress()
+                    if (userRepository.checkDuplicationOfUsers(login)) {
+                        view?.setResponse(Response.USERS_DUPLICATION.response)
+                        responseText = Response.USERS_DUPLICATION.response
+                    } else {
+                        userRepository.addUser(User(login, password))
+                        view?.setResponse(Response.REGISTER_SUCCESS.response)
+                        responseText = Response.REGISTER_SUCCESS.response
+                    }
                 }
-            }
-        }.start()
+            }.start()
+        }
     }
 }

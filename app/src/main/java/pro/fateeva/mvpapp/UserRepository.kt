@@ -8,8 +8,8 @@ class UserRepository {
         usersList.add(user)
     }
 
-    fun remindPassword(login: String): User? {
-        return usersList.firstOrNull { user -> user.login == login }
+    fun remindPassword(login: String): String? {
+        return usersList.firstOrNull { user -> user.login == login }?.password
     }
 
     fun checkPassword(login: String, password: String): Response {

@@ -33,22 +33,40 @@ class LoginPresenter : LoginContract.Presenter {
         }.start()
     }
 
-    override fun onForgetPassword(password: String) {
-        TODO("Not yet implemented")
-    }
-
-    override fun onSignin(login: String, password: String) {
-        if (login == "" || password == "") {
-            view?.setResponse(Response.EMPTY_CELLS.response)
-            responseText = Response.EMPTY_CELLS.response
-        } else if (userRepository.checkDuplicationOfUsers(login)) {
-            view?.setResponse(Response.USERS_DUPLICATION.response)
-            responseText = Response.USERS_DUPLICATION.response
+    override fun onForgetPassword(login: String) {
+        if (login == null){
+            view?.setResponse(Response.EMPTY_LOGIN.response)
+            responseText = Response.EMPTY_LOGIN.response
         } else {
-            userRepository.addUser(User(login, password))
-            view?.setResponse(Response.REGISTER_SUCCESS.response)
-            responseText = Response.REGISTER_SUCCESS.response
+            val password = userRepository.remindPassword(login)
+            if (password == null){
+                view?.setResponse(Response.UNREGISTERED.response)
+                responseText = Response.UNREGISTERED.response
+            } else {
+                view?.setResponse(password)
+                responseText = password
+            }
         }
     }
 
+    override fun onSignin(login: String, password: String) {
+        view?.showProgress()
+        Thread {
+            sleep(3_000)
+            mainThreadHandler.post {
+                view?.hideProgress()
+                if (login == "" || password == "") {
+                    view?.setResponse(Response.EMPTY_CELLS.response)
+                    responseText = Response.EMPTY_CELLS.response
+                } else if (userRepository.checkDuplicationOfUsers(login)) {
+                    view?.setResponse(Response.USERS_DUPLICATION.response)
+                    responseText = Response.USERS_DUPLICATION.response
+                } else {
+                    userRepository.addUser(User(login, password))
+                    view?.setResponse(Response.REGISTER_SUCCESS.response)
+                    responseText = Response.REGISTER_SUCCESS.response
+                }
+            }
+        }.start()
+    }
 }

@@ -31,6 +31,12 @@ class MainActivity : AppCompatActivity(), LoginContract.View {
                 binding.passwordEditText.text.toString()
             )
         }
+
+        binding.forgetPasswordButton.setOnClickListener {
+            presenter?.onForgetPassword(
+                binding.loginEditText.text.toString()
+            )
+        }
     }
 
     private fun restorePresenter(): LoginPresenter {

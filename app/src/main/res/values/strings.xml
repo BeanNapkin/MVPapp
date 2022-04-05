@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">MVPapp</string>
+    <string name="you_are_not_registered">Вы не зарегистированы</string>
+    <string name="A_user_with_this_name_already_exists">Пользователь с таким именем уже существует</string>
+    <string name="fill_in_all_the_fields">Заполните все поля</string>
+    <string name="enter_your_login">Введите свой логин</string>
+    <string name="you_have_successfully_registered">Вы успешно зарегистрированы</string>
+    <string name="correct_password">Верный пароль</string>
+    <string name="incorrect_password">Неверный пароль</string>
+    <string name="your_password_is">Ваш пароль %s</string>
+    <string name="login_or_sign_up">Войдите или зарегистрируйтесь!</string>
+    <string name="login">Логин</string>
+    <string name="password">Пароль</string>
+    <string name="enter">Войти</string>
+    <string name="forget_password">Забыл пароль</string>
+    <string name="sign_up">Зарегистрироваться</string>
 </resources>

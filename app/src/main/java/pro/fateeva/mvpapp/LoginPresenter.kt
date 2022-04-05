@@ -8,12 +8,15 @@ class LoginPresenter : LoginContract.Presenter {
 
     private var view: LoginContract.View? = null
     private val mainThreadHandler = Handler(Looper.getMainLooper())
-    private var responseText: String = ""
+    private var response: Response? = null
     private val userRepository: UserRepository = UserRepository()
+    private var login: String = ""
 
     override fun onAttach(view: LoginContract.View) {
         this.view = view
-        view.setResponse(responseText)
+        response?.let {
+            saveAndShowResponse(it)
+        }
     }
 
     override fun checkPassword(login: String, password: String): Response {
@@ -28,23 +31,21 @@ class LoginPresenter : LoginContract.Presenter {
                 view?.hideProgress()
                 val response = checkPassword(login, password)
                 view?.setResponse(response.response)
-                responseText = response.response
+                this.response = response
             }
         }.start()
     }
 
     override fun onForgetPassword(login: String) {
+        this.login = login
         if (login.isBlank()) {
-            view?.setResponse(Response.EMPTY_LOGIN.response)
-            responseText = Response.EMPTY_LOGIN.response
+            saveAndShowResponse(Response.EMPTY_LOGIN)
         } else {
             val password = userRepository.remindPassword(login)
             if (password.isNullOrBlank()) {
-                view?.setResponse(Response.UNREGISTERED.response)
-                responseText = Response.UNREGISTERED.response
+                saveAndShowResponse(Response.UNREGISTERED)
             } else {
-                view?.setResponse(password)
-                responseText = password
+                saveAndShowResponse(Response.YOUR_PASSWORD)
             }
         }
     }
@@ -52,7 +53,7 @@ class LoginPresenter : LoginContract.Presenter {
     override fun onSignin(login: String, password: String) {
         if (login.isBlank() || password.isBlank()) {
             view?.setResponse(Response.EMPTY_CELLS.response)
-            responseText = Response.EMPTY_CELLS.response
+            response = Response.EMPTY_CELLS
         } else {
             view?.showProgress()
             Thread {
@@ -60,15 +61,26 @@ class LoginPresenter : LoginContract.Presenter {
                 mainThreadHandler.post {
                     view?.hideProgress()
                     if (userRepository.checkDuplicationOfUsers(login)) {
-                        view?.setResponse(Response.USERS_DUPLICATION.response)
-                        responseText = Response.USERS_DUPLICATION.response
+                        saveAndShowResponse(Response.USERS_DUPLICATION)
                     } else {
                         userRepository.addUser(User(login, password))
-                        view?.setResponse(Response.REGISTER_SUCCESS.response)
-                        responseText = Response.REGISTER_SUCCESS.response
+                        saveAndShowResponse(Response.REGISTER_SUCCESS)
                     }
                 }
             }.start()
         }
+    }
+
+    private fun saveAndShowResponse(response: Response) {
+        if (response == Response.YOUR_PASSWORD) {
+            view?.setResponse(
+                response.response,
+                userRepository.remindPassword(login)
+                    ?: error("Password for login $login not found")
+            )
+        } else {
+            view?.setResponse(response.response)
+        }
+        this.response = response
     }
 }

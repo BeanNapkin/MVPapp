@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.MainThread
+import androidx.annotation.StringRes
 import pro.fateeva.mvpapp.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(), LoginContract.View {
@@ -49,14 +50,20 @@ class MainActivity : AppCompatActivity(), LoginContract.View {
     }
 
     @MainThread
-    override fun setResponse(response: String) {
+    override fun setResponse(response: Int) {
         hideProgress()
-        binding.responseTextView.setText(response)
+        binding.responseTextView.setText(this.getString(response))
+    }
+
+    @MainThread
+    override fun setResponse(response: Int, arg: String) {
+        hideProgress()
+        binding.responseTextView.setText(this.getString(response))
     }
 
     @MainThread
     override fun showProgress() {
-       binding.progressBar.visibility = View.VISIBLE
+        binding.progressBar.visibility = View.VISIBLE
     }
 
     @MainThread

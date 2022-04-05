@@ -6,7 +6,9 @@ class LoginContract {
 
     interface View {
         @MainThread
-        fun setResponse(response: String)
+        fun setResponse(response: Int)
+        @MainThread
+        fun setResponse(response: Int, arg: String)
         @MainThread
         fun showProgress()
         @MainThread

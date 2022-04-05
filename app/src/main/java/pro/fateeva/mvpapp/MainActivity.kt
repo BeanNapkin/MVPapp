@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity(), LoginContract.View {
             )
         }
 
-        binding.signInButton.setOnClickListener {
+        binding.signUpButton.setOnClickListener {
             presenter?.onSignin(
                 binding.loginEditText.text.toString(),
                 binding.passwordEditText.text.toString()

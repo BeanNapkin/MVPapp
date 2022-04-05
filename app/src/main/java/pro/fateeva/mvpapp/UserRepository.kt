@@ -19,12 +19,11 @@ class UserRepository {
         return if (user.password == password) {
             Response.CORRECT_PASSWORD
         } else {
-            Response.UNCORRECT_PASSWORD
+            Response.INCORRECT_PASSWORD
         }
     }
 
     fun checkDuplicationOfUsers(login: String): Boolean {
         return usersList.firstOrNull { user -> user.login == login } != null
     }
-
 }

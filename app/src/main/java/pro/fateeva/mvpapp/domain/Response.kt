@@ -1,4 +1,6 @@
-package pro.fateeva.mvpapp
+package pro.fateeva.mvpapp.domain
+
+import pro.fateeva.mvpapp.R
 
 enum class Response(val response: Int) {
     UNREGISTERED(R.string.you_are_not_registered),

@@ -1,6 +1,7 @@
-package pro.fateeva.mvpapp
+package pro.fateeva.mvpapp.ui
 
 import androidx.annotation.MainThread
+import pro.fateeva.mvpapp.domain.Response
 
 class LoginContract {
 
@@ -20,6 +21,6 @@ class LoginContract {
         fun checkPassword(login: String, password: String) : Response
         fun onLogin(login: String, password: String)
         fun onForgetPassword(password: String)
-        fun onSignin(login: String, password: String)
+        fun onSignUp(login: String, password: String)
     }
 }

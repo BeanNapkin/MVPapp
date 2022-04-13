@@ -2,63 +2,84 @@ package pro.fateeva.mvpapp.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import androidx.annotation.MainThread
+import pro.fateeva.mvpapp.R
 import pro.fateeva.mvpapp.app
 import pro.fateeva.mvpapp.databinding.ActivityMainBinding
+import pro.fateeva.mvpapp.domain.Response
 
 class MainActivity : AppCompatActivity(), LoginContract.View {
 
     private lateinit var binding: ActivityMainBinding
-    private var presenter: LoginContract.Presenter? = null
+    private var viewModel: MainViewModel? = null
+    private val handler: Handler by lazy { Handler(Looper.getMainLooper()) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        presenter = restorePresenter()
-        presenter?.onAttach(this)
+        viewModel = restoreViewModel()
 
         binding.logInButton.setOnClickListener {
-            presenter?.onLogin(
+            viewModel?.onLogin(
                 binding.loginEditText.text.toString(),
                 binding.passwordEditText.text.toString()
             )
         }
 
         binding.signUpButton.setOnClickListener {
-            presenter?.onSignUp(
+            viewModel?.onSignUp(
                 binding.loginEditText.text.toString(),
                 binding.passwordEditText.text.toString()
             )
         }
 
         binding.forgetPasswordButton.setOnClickListener {
-            presenter?.onForgetPassword(
+            viewModel?.onForgetPassword(
                 binding.loginEditText.text.toString()
             )
         }
+
+        viewModel?.response?.subscribe(handler) { response ->
+            if (response != null) {
+                setResponse(response.response)
+            }
+        }
+
+        viewModel?.remindPasswordResponse?.subscribe(handler){
+            binding.responseTextView.setText(getString(R.string.your_password_is, it))
+        }
+
+        viewModel?.isShouldShowProgress?.subscribe(handler){
+            if (it == true){
+                showProgress()
+            } else {
+                hideProgress()
+            }
+        }
     }
 
-    private fun restorePresenter(): LoginPresenter {
-        val presenter = lastCustomNonConfigurationInstance as? LoginPresenter
-        return presenter ?: LoginPresenter(app.loginUsecase)
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel?.response?.unsubscribeAll()
+    }
+
+    private fun restoreViewModel(): MainViewModel {
+        val viewModel = lastCustomNonConfigurationInstance as? MainViewModel
+        return viewModel ?: MainViewModel(app.loginUsecase)
     }
 
     override fun onRetainCustomNonConfigurationInstance(): Any? {
-        return presenter
+        return viewModel
     }
 
     @MainThread
     override fun setResponse(response: Int) {
         hideProgress()
         binding.responseTextView.setText(this.getString(response))
-    }
-
-    @MainThread
-    override fun setResponse(response: Int, arg: String) {
-        hideProgress()
-        binding.responseTextView.setText(this.getString(response, arg))
     }
 
     @MainThread
